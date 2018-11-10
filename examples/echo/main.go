@@ -68,7 +68,6 @@ func main() {
 		log.Fatal(err)
 	}
 
-
 	// This is where we will register our custom protocol. In this case we are using
 	// /bitcoincash/echo/1.0.0. Not that the /bitcoincash/ prefix denotes that this
 	// protocol is intended to run on the bitcoin cash overlay network.

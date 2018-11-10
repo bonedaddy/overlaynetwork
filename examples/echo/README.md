@@ -5,7 +5,7 @@ run a custom protocol (an echo protocol in this case). Connections will automati
 authenticated. All you need to do is register your protocol handler and you're good to go.
 ## Build
 
-From `go-libp2p` base folder:
+From `overlaynetwork` base folder:
 
 ```
 > go build ./examples/echo

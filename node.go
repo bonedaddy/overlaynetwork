@@ -13,6 +13,7 @@ import (
 	"github.com/libp2p/go-libp2p-kad-dht/opts"
 	"github.com/libp2p/go-libp2p-peerstore"
 	"github.com/libp2p/go-libp2p-protocol"
+	"github.com/libp2p/go-libp2p-pubsub"
 	"github.com/libp2p/go-libp2p-record"
 	"github.com/libp2p/go-libp2p-routing"
 	"net"
@@ -49,6 +50,11 @@ type OverlayNode struct {
 	// ContentRouting, and ValueStore interfaces. In practice this will be
 	// a Kademlia DHT.
 	Routing routing.IpfsRouting
+
+	// PubSub is an instance of gossipsub which uses the DHT save lists of
+	// subscribers to topics which publishers can find via a DHT query and
+	// publish messages to the topic using a gossip mechanism.
+	PubSub *Pubsub
 
 	// PrivateKey is the identity private key for this node
 	PrivateKey crypto.PrivKey
@@ -99,15 +105,21 @@ func NewOverlayNode(config *NodeConfig) (*OverlayNode, error) {
 		dhtopts.Datastore(dstore),
 		dhtopts.Protocols(protocol),
 		dhtopts.Validator(record.NamespacedValidator{
-			"pk": record.PublicKeyValidator{},
+			"pk":     record.PublicKeyValidator{},
 			"sha256": &Sha256Validator{},
 		}),
 	)
+
+	ps, err := pubsub.NewGossipSub(context.Background(), peerHost)
+	if err != nil {
+		return nil, err
+	}
 
 	node := &OverlayNode{
 		Params:           config.Params,
 		Host:             peerHost,
 		Routing:          routing,
+		PubSub:           &Pubsub{ps: ps, ht: peerHost, rt: routing},
 		PrivateKey:       config.PrivateKey,
 		Datastore:        dstore,
 		bootstrapPeers:   config.BootstrapPeers,

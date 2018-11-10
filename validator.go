@@ -23,7 +23,7 @@ var (
 
 // Sha256Validator is a basic validator used by the DHT to validate that
 // the key for any given record is the hex encoded sha256 hash of the value.
-type Sha256Validator struct {}
+type Sha256Validator struct{}
 
 // Validate validates the given record, returning an error if it's
 // invalid (e.g., expired, signed by the wrong key, etc.).

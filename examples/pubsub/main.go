@@ -3,16 +3,16 @@ package main
 import (
 	"context"
 	"crypto/rand"
-	"crypto/sha256"
-	"encoding/hex"
 	"flag"
 	"fmt"
 	"github.com/gcash/bchd/chaincfg"
 	"github.com/gcash/overlaynetwork"
 	golog "github.com/ipfs/go-log"
 	"github.com/libp2p/go-libp2p-crypto"
+	"github.com/libp2p/go-libp2p-peer"
 	"github.com/libp2p/go-libp2p-peerstore"
 	gologging "github.com/whyrusleeping/go-logging"
+	"io"
 	"log"
 	"os"
 	"path"
@@ -81,8 +81,26 @@ func main() {
 	if *target == "" {
 		log.Println("listening for connections")
 		fullAddr := fmt.Sprintf("/ip4/127.0.0.1/tcp/%d/p2p/%s", *listenF, node.Host.ID().Pretty())
-		log.Printf("Now run \"./dht -l %d -d %s\" on a different terminal\n", *listenF+1, fullAddr)
-		select {}
+		log.Printf("Now run \"./pubsub -l %d -d %s\" on a different terminal\n", *listenF+1, fullAddr)
+
+		// Subscribe to the topic "pizza"
+		sub, err := node.PubSub.Subscribe(context.Background(), "pizza")
+		if err != nil {
+			log.Fatal(err)
+		}
+		for {
+			msg, err := sub.Next(context.Background())
+			if err == io.EOF || err == context.Canceled {
+				break
+			} else if err != nil {
+				break
+			}
+			pid, err := peer.IDFromBytes(msg.From)
+			if err != nil {
+				log.Fatal(err)
+			}
+			fmt.Printf("Received pubsub message: %s from %s\n", string(msg.Data), pid.Pretty())
+		}
 	}
 	/**** This is where the listener code ends ****/
 
@@ -93,23 +111,12 @@ func main() {
 		log.Fatal(err)
 	}
 
-	// Create a DHT entry. In this instance the key must be the hex encoded sha256 hash
-	// of the value.
-	value := []byte("Hello World!")
-	valueHash := sha256.Sum256(value)
-	key := hex.EncodeToString(valueHash[:])
-
-	// Put the key/value to the DHT
-	fmt.Println("Putting value to the DHT")
-	err = node.Routing.PutValue(context.Background(), fmt.Sprintf("/sha256/%s", key), value)
+	// Publish to the topic "pizza"
+	fmt.Println("Publishing message to topic..")
+	err = node.PubSub.Publish(context.Background(), "pizza", []byte("I love pizza!"))
 	if err != nil {
 		log.Fatal(err)
 	}
-
-	// Look up the key in the DHT and see if we get back the same value.
-	returnedValue, err := node.Routing.GetValue(context.Background(), fmt.Sprintf("/sha256/%s", key))
-	if err != nil {
-		log.Fatal(err)
-	}
-	fmt.Printf("Got value from DHT: %s\n", string(returnedValue))
+	// hang
+	select {}
 }

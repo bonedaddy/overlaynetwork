@@ -54,6 +54,4 @@ Examples of apps that would benefit from connecting to the overlay network:
 
 #### TODO
 This app is not that large as most of the heavy lifting is handled by libp2p. At this point in time
-the only TODOs are:
-- Hook up Tor as an optional transport.
-- Wire up pubsub and include it in the `OverlayNode` for public use.
+the only TODO is to hook up Tor as an optional transport.

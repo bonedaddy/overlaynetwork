@@ -7,7 +7,7 @@ events and the other will set and get the value.
 
 ## Build
 
-From `go-libp2p` base folder:
+From `overlaynetwork` base folder:
 
 ```
 > go build ./examples/dht

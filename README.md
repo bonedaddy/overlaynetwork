@@ -51,7 +51,3 @@ Examples of apps that would benefit from connecting to the overlay network:
 - Atomic swap apps
 - P2P gambling apps
 - Wallet-to-wallet communication
-
-#### TODO
-This app is not that large as most of the heavy lifting is handled by libp2p. At this point in time
-the only TODO is to hook up Tor as an optional transport.

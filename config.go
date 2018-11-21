@@ -26,6 +26,10 @@ type NodeConfig struct {
 	Port uint16
 
 	// DisableDnsSeeds will disable querying the DNS seeds for bootstrap addresses
+	// NOTE: since the DNS seeds serve addresses over DNS as TXT records and since
+	// we cannot resolve TXT records over Tor itself, we can not use DNS resolution
+	// when running in TorOnly mode as this would leak the IP address. When running
+	// in TorOnly mode you will need to use the bootstrap addresses.
 	DisableDNSSeeds bool
 
 	// BootstrapPeers is an optional list of peers to use for bootstrapping

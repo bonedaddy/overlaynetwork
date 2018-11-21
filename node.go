@@ -122,6 +122,12 @@ func NewOverlayNode(config *NodeConfig) (*OverlayNode, error) {
 		// Set the transport in the libp2p options
 		opts = append(opts, libp2p.Transport(onionTransport.Constructor))
 		opts = append(opts, libp2p.ListenAddrStrings(fmt.Sprintf("/onion/%s:%d", onionAddr, config.TorListeningPort)))
+
+		// Override the DNS seed setting if we're in TorOnly mode so that we don't
+		// leak our IP address.
+		if config.ConnectionType == TmTorOnly {
+			config.DisableDNSSeeds = true
+		}
 	}
 
 	// If we're using Clearnet or Dualstack modes then set libp2p to listen on TCP.

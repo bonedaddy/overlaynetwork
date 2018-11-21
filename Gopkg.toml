@@ -26,7 +26,11 @@
 
 
 [[constraint]]
-  branch = "utxocache"
+  branch = "newinterface"
+  name = "github.com/OpenBazaar/go-onion-transport"
+
+[[constraint]]
+  branch = "master"
   name = "github.com/gcash/bchd"
 
 [[constraint]]
@@ -100,6 +104,10 @@
 [[constraint]]
   branch = "master"
   name = "github.com/whyrusleeping/go-logging"
+
+[[constraint]]
+  branch = "master"
+  name = "github.com/yawning/bulb"
 
 [prune]
   go-tests = true

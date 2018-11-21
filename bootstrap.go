@@ -146,9 +146,9 @@ func bootstrapConnect(ctx context.Context, ph host.Host, peers []peerstore.PeerI
 		go func(p peerstore.PeerInfo) {
 			defer wg.Done()
 			log.Debugf("%s bootstrapping to %s", ph.ID(), p.ID)
-
 			ph.Peerstore().AddAddrs(p.ID, p.Addrs, peerstore.PermanentAddrTTL)
 			if err := ph.Connect(ctx, p); err != nil {
+				fmt.Println(err)
 				log.Debugf("failed to bootstrap with %v: %s", p.ID, err)
 				errs <- err
 				return

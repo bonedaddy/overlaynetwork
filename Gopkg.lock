@@ -2,6 +2,14 @@
 
 
 [[projects]]
+  branch = "newinterface"
+  digest = "1:c5052c38f8d262d2ef3a0c87409b0729d4376a4f7f5c7cf3a565d9e15d976f9b"
+  name = "github.com/OpenBazaar/go-onion-transport"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "d5ba244da11e0dc5b3b090da160447140c0097f1"
+
+[[projects]]
   branch = "master"
   digest = "1:c0decf632843204d2b8781de7b26e7038584e2dcccc7e2f401e88ae85b1df2b7"
   name = "github.com/btcsuite/btcd"
@@ -26,8 +34,8 @@
   revision = "bad65a492f32121a87197f4a085905c35e2a367e"
 
 [[projects]]
-  branch = "utxocache"
-  digest = "1:4767b214b311de07a1d216384acfa69ca6e1c951f60118b6936272134a0fab7e"
+  branch = "master"
+  digest = "1:f4747d01e3d13dc7383bc92e5d5a40d8dd395107bd3177ca4bec950da149c1ef"
   name = "github.com/gcash/bchd"
   packages = [
     "chaincfg",
@@ -35,7 +43,7 @@
     "wire",
   ]
   pruneopts = "UT"
-  revision = "ce6775d50f5ef2ac6d40c0cc15c2e8f47a9d2609"
+  revision = "b89fafac1c776504a9a2d4afed0bde480f51c6f1"
 
 [[projects]]
   branch = "master"
@@ -796,6 +804,18 @@
 
 [[projects]]
   branch = "master"
+  digest = "1:6d096c04caafd558fd8aaae07bf349235a0c455c652cd524c2e0a4e95e536cdd"
+  name = "github.com/yawning/bulb"
+  packages = [
+    ".",
+    "utils",
+    "utils/pkcs1",
+  ]
+  pruneopts = "UT"
+  revision = "85d80d893c3d4a478b8c0abbc43f0ea13e1ce4f9"
+
+[[projects]]
+  branch = "master"
   digest = "1:339d13c1694c727e6cb5ef2706a1421a57f14979fa73f04ca4eec96f034f3735"
   name = "golang.org/x/crypto"
   packages = [
@@ -810,13 +830,15 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:6d5ed712653ea5321fe3e3475ab2188cf362a4e0d31e9fd3acbd4dfbbca0d680"
+  digest = "1:4202410a1062060861003bb19638f0802a51b1d6a3aec49af00b0af549ab0d60"
   name = "golang.org/x/net"
   packages = [
     "context",
     "html",
     "html/atom",
     "html/charset",
+    "internal/socks",
+    "proxy",
   ]
   pruneopts = "UT"
   revision = "04a2e542c03f1d053ab3e4d6e5abcd4b66e2be8e"
@@ -865,6 +887,7 @@
   analyzer-name = "dep"
   analyzer-version = 1
   input-imports = [
+    "github.com/OpenBazaar/go-onion-transport",
     "github.com/gcash/bchd/chaincfg",
     "github.com/gcash/bchlog",
     "github.com/ipfs/go-cid",
@@ -886,6 +909,8 @@
     "github.com/multiformats/go-multiaddr",
     "github.com/multiformats/go-multihash",
     "github.com/whyrusleeping/go-logging",
+    "github.com/yawning/bulb",
+    "github.com/yawning/bulb/utils/pkcs1",
   ]
   solver-name = "gps-cdcl"
   solver-version = 1

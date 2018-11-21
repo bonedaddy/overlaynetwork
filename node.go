@@ -3,6 +3,7 @@ package overlaynetwork
 import (
 	"context"
 	"fmt"
+	otp "github.com/OpenBazaar/go-onion-transport"
 	"github.com/gcash/bchd/chaincfg"
 	"github.com/ipfs/go-datastore"
 	"github.com/ipfs/go-ds-leveldb"
@@ -18,6 +19,17 @@ import (
 	"github.com/libp2p/go-libp2p-routing"
 	"net"
 	"path"
+	"strconv"
+)
+
+const (
+	// DefaultPort is the default port to listen to for incoming connections
+	// The config can override this.
+	DefaultPort = 8005
+
+	// DefaultTorPort is the port to listen to for incoming onion connections.
+	// The config can override this.
+	DefaultTorPort = 8006
 )
 
 var (
@@ -69,16 +81,55 @@ type OverlayNode struct {
 
 // NewOverlayNode is a constructor for our Node object
 func NewOverlayNode(config *NodeConfig) (*OverlayNode, error) {
+	// Start with a default option of just the private key
 	opts := []libp2p.Option{
-		// Listen on all interface on both IPv4 and IPv6.
-		// If we're going to enable other transports such as Tor or QUIC we would do it here.
-
-		// TODO: users who start in Tor mode will have their privacy blown if they use this
-		// before getting around to implementing Tor. For now we should probably check if
-		// the wallet was started in Tor mode and panic if payment channels are enabled.
-		libp2p.ListenAddrStrings(fmt.Sprintf("/ip4/0.0.0.0/tcp/%d", config.Port)),
-		libp2p.ListenAddrStrings(fmt.Sprintf("/ip6/::/tcp/%d", config.Port)),
 		libp2p.Identity(config.PrivateKey),
+	}
+
+	// Set the default ports if they were left at zero in the config
+	if config.Port == 0 {
+		config.Port = DefaultPort
+	}
+	if config.TorListeningPort == 0 {
+		config.TorListeningPort = DefaultTorPort
+	}
+
+	// If a Tor mode was selected configure the onion transport
+	if config.ConnectionType != TmClearnet {
+		// If the Tor control port was not specified we'll see if Tor
+		// is listening on the default port. This will error if it isn't.
+		if config.TorControlPort == 0 {
+			var err error
+			config.TorControlPort, err = getTorControlPort()
+			if err != nil {
+				return nil, err
+			}
+		}
+		// Create a new hidden service key if one doesn't already exist and
+		// save it into the data directory.
+		onionAddr, err := maybeCreateHiddenServiceKey(config.DataDir)
+		if err != nil {
+			return nil, err
+		}
+
+		// Build the transport
+		torControl := "127.0.0.1:" + strconv.Itoa(int(config.TorControlPort))
+		onionTransport, err := otp.NewOnionTransport("tcp4", torControl, config.TorControlPassword, nil, config.DataDir, config.ConnectionType == TmDualStack)
+		if err != nil {
+			return nil, err
+		}
+
+		// Set the transport in the libp2p options
+		opts = append(opts, libp2p.Transport(onionTransport.Constructor))
+		opts = append(opts, libp2p.ListenAddrStrings(fmt.Sprintf("/onion/%s:%d", onionAddr, config.TorListeningPort)))
+	}
+
+	// If we're using Clearnet or Dualstack modes then set libp2p to listen on TCP.
+	if config.ConnectionType != TmTorOnly {
+		opts = append(opts,
+			libp2p.ListenAddrStrings(fmt.Sprintf("/ip4/0.0.0.0/tcp/%d", config.Port)),
+			libp2p.ListenAddrStrings(fmt.Sprintf("/ip6/::/tcp/%d", config.Port)),
+		)
 	}
 
 	// This function will initialize a new libp2p host with our options plus a bunch of default options

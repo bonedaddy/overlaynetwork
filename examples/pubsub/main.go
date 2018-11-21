@@ -42,6 +42,10 @@ func main() {
 		log.Fatal(err)
 	}
 
+	tmpPath := path.Join(os.TempDir(), strconv.Itoa(*listenF))
+	os.Mkdir(tmpPath, os.ModePerm)
+	defer func(){os.RemoveAll(tmpPath)}()
+
 	// Next we'll create the node config
 	cfg := overlaynetwork.NodeConfig{
 		PrivateKey: privKey,
@@ -58,7 +62,7 @@ func main() {
 
 		// You would also set a directory here to use as the data directory for this node.
 		// For this we will just use a temp directory.
-		DataDir: path.Join(os.TempDir(), strconv.Itoa(*listenF)),
+		DataDir: tmpPath,
 	}
 
 	// If the target address is provided let's add it as a bootstrap peer in the config
